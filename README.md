@@ -6,7 +6,10 @@ A lightweight, private Telegram bot designed to act as a central "knowledge hub"
 
 - **Private Access:** Only users with whitelisted Telegram IDs can interact with the bot.
 - **Family Knowledge (RAG):** Answers questions based on a local `knowledge.txt` file (Wi-Fi, birthdays, house rules).
-- **AI Brain:** Powered by Groq/Llama 3 for natural, helpful conversations.
+- **AI Brain & General Intelligence:** Powered by Groq/Llama 3 for natural, helpful conversations on any topic—from household facts to career advice and budgeting.
+- **Smart Reminders:** Schedule reminders via natural language (e.g., "Remind me to check the oven in 10 minutes").
+- **Multi-Tool Morning Briefing:** Daily summary at 5:00 AM including live weather, family birthdays, and household tips.
+- **Conversation Memory:** Remembers recent chat context for natural follow-up questions.
 - **Asynchronous:** Built on `python-telegram-bot` for fast, non-blocking performance.
 
 ## 🛠️ Tech Stack

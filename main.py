@@ -1,16 +1,18 @@
 # Entry point: Handlers and Bot setup
 import os
 import uvicorn
+import asyncio
 from groq import Groq
 from fastapi import FastAPI
 from threading import Thread
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 from telegram import Update
-from brain import ask_brain
+from brain import ask_brain, get_family_knowledge
 from config import GROQ_API_KEY, TELEGRAM_TOKEN, FAMILY_IDS, FAMILY_GROUP_ID
 from datetime import time
 import pytz # Recommended for handling your local timezone
 from tools.weather_tool import get_weather
+from tools.calendar_tool import check_birthdays
 
 app = FastAPI()
 
@@ -50,20 +52,57 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Call the isolated brain with chat_id for memory
     chat_id = update.effective_chat.id
-    response = ask_brain(update.message.text, chat_id=chat_id)
+    
+    # Run the blocking brain call in a separate thread
+    context_data = {}
+    loop = asyncio.get_event_loop()
+    response = await loop.run_in_executor(
+        None, 
+        lambda: ask_brain(update.message.text, chat_id=chat_id, context_data=context_data)
+    )
+    
+    if not response or response.strip() == "":
+        response = "I heard you, but I'm not sure how to respond."
+
+    # Handle Reminder Tool callback
+    if 'reminder' in context_data:
+        rem = context_data['reminder']
+        context.job_queue.run_once(
+            send_reminder, 
+            when=rem['minutes'] * 60, 
+            data={"text": rem['text'], "chat_id": chat_id}
+        )
+        
     await update.message.reply_text(response)
+
+async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
+    """Callback for the job queue to send the reminder."""
+    job = context.job
+    await context.bot.send_message(chat_id=job.data["chat_id"], text=f"⏰ **Reminder:** {job.data['text']}")
 
 
 async def morning_briefing(context):
-    """Background task to send a daily summary including weather."""
-    # 1. Fetch live weather
+    """Background task to send a daily summary including weather and birthdays."""
+    # 1. Fetch live data
     weather_data = get_weather(HOME_LAT, HOME_LON)
+    knowledge = get_family_knowledge()
+    birthday_info = check_birthdays(knowledge) or "No birthdays today."
     
     # 2. Build the prompt for the AI
     brief_query = f"""
-    Context: Today's weather is {weather_data}. 
-    Based on this and our family knowledge, give me a warm, 3-bullet point morning briefing. 
-    If it's rainy, remind the family to take umbrellas!
+    You are giving the daily morning briefing to the family.
+    
+    Context:
+    - Weather: {weather_data}
+    - Birthdays: {birthday_info}
+    - Household Facts: {knowledge}
+    
+    Please provide a warm morning briefing with:
+    1. A weather summary (and advice like umbrellas if needed).
+    2. Any birthday announcements.
+    3. A helpful household tip or reminder based on the facts (like pet feeding or trash).
+    
+    Keep it cheerful and use bullet points!
     """
     
     ai_response = ask_brain(brief_query)
@@ -71,7 +110,8 @@ async def morning_briefing(context):
     # 3. Send to family group
     await context.bot.send_message(
         chat_id=FAMILY_GROUP_ID, 
-        text=f"☀️ **Good Morning Family!**\n\n{ai_response}"
+        text=f"☀️ **Good Morning Family!**\n\n{ai_response}",
+        parse_mode="Markdown"
     )
 
 async def handle_voice(update, context):
@@ -95,7 +135,12 @@ async def handle_voice(update, context):
         )
     
     # 3. Process the transcribed text through your 'brain'
-    ai_response = ask_brain(f"The user sent a voice message saying: '{transcription}'. Please respond.")
+    chat_id = update.effective_chat.id
+    loop = asyncio.get_event_loop()
+    ai_response = await loop.run_in_executor(
+        None,
+        lambda: ask_brain(f"The user sent a voice message saying: '{transcription}'. Please respond.", chat_id=chat_id)
+    )
     await update.message.reply_text(f"📝 Transcribed: \"{transcription}\"\n\n🤖 {ai_response}")
     
     # Cleanup

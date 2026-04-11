@@ -47,7 +47,7 @@ A lightweight, private Telegram bot designed to act as a central "knowledge hub"
 5. **Initialize Knowledge:**
 
    ```
-   Edit knowledge.txt to include your family-specific information.
+   edit  **knowledge.txt**  to include your family-specific information.
    ```
 
 6. **Run the Bot:**

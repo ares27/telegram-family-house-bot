@@ -18,8 +18,9 @@ app = FastAPI()
 client = Groq(api_key=GROQ_API_KEY)
 
 # ensure this is in the .env
-HOME_LAT = os.getenv("HOME_LAT", "-25.86") 
-HOME_LON = os.getenv("HOME_LON", "28.18")  
+HOME_LAT = os.getenv("HOME_LAT", "-25.806207") 
+HOME_LON = os.getenv("HOME_LON", "28.148774")  
+
 
 
 @app.get("/")
@@ -47,8 +48,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Show "typing..." in Telegram while the AI thinks
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
     
-    # Call the isolated brain
-    response = ask_brain(update.message.text)
+    # Call the isolated brain with chat_id for memory
+    chat_id = update.effective_chat.id
+    response = ask_brain(update.message.text, chat_id=chat_id)
     await update.message.reply_text(response)
 
 

@@ -4,4 +4,5 @@ venv/
 *.log
 
 # other files
+to_add_to_functionality.txt
 to_add_to_knowledge.txt

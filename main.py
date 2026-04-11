@@ -67,6 +67,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Handle Reminder Tool callback
     if 'reminder' in context_data:
         rem = context_data['reminder']
+        print(f"DEBUG: Scheduling job in {rem['minutes']} minutes for chat {chat_id}")
         context.job_queue.run_once(
             send_reminder, 
             when=rem['minutes'] * 60, 
@@ -135,11 +136,22 @@ async def handle_voice(update, context):
     
     # 3. Process the transcribed text through your 'brain'
     chat_id = update.effective_chat.id
+    context_data = {}
     loop = asyncio.get_event_loop()
     ai_response = await loop.run_in_executor(
         None,
-        lambda: ask_brain(f"The user sent a voice message saying: '{transcription}'. Please respond.", chat_id=chat_id)
+        lambda: ask_brain(f"The user sent a voice message saying: '{transcription}'. Please respond.", chat_id=chat_id, context_data=context_data)
     )
+    
+    # Handle Reminder Tool callback for voice
+    if 'reminder' in context_data:
+        rem = context_data['reminder']
+        context.job_queue.run_once(
+            send_reminder, 
+            when=rem['minutes'] * 60, 
+            data={"text": rem['text'], "chat_id": chat_id}
+        )
+
     await update.message.reply_text(f"📝 Transcribed: \"{transcription}\"\n\n🤖 {ai_response}")
     
     # Cleanup

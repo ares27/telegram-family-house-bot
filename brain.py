@@ -134,12 +134,15 @@ def ask_brain(user_query, chat_id="default", context_data=None):
                         mins = int(function_args.get("time_delta_minutes", 0))
                     except (ValueError, TypeError):
                         mins = 0
-                        
+                    
+                    print(f"DEBUG: Setting reminder for '{text}' in {mins} minutes.")
                     function_response = f"SUCCESS: Reminder set for '{text}' in {mins} minutes."
                     
                     # Store tool execution details in context_data for main.py
                     if context_data is not None:
                         context_data['reminder'] = {"text": text, "minutes": mins}
+                    else:
+                        print("DEBUG: context_data was None, cannot set reminder callback.")
                 
                 elif function_name == "get_inventory":
                     function_response = get_inventory()

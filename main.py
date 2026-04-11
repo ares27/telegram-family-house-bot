@@ -80,7 +80,6 @@ async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
     job = context.job
     await context.bot.send_message(chat_id=job.data["chat_id"], text=f"⏰ **Reminder:** {job.data['text']}")
 
-
 async def morning_briefing(context):
     """Background task to send a daily summary including weather and birthdays."""
     # 1. Fetch live data
@@ -146,6 +145,13 @@ async def handle_voice(update, context):
     # Cleanup
     os.remove(file_path)
 
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Log the error and send a notice if it's a conflict."""
+    if "Conflict: terminated by other getUpdates request" in str(context.error):
+        print("⚠️ Conflict detected: Another instance of the bot is running. Please close other sessions.")
+    else:
+        print(f"❌ Update {update} caused error {context.error}")
+
 
 if __name__ == '__main__':
 
@@ -170,6 +176,7 @@ if __name__ == '__main__':
     bot_app.add_handler(CommandHandler("start", start))
     bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     bot_app.add_handler(MessageHandler(filters.VOICE, handle_voice))
+    bot_app.add_error_handler(error_handler)
 
     print("Bot is thinking... (Polling)")
     bot_app.run_polling()

@@ -8,9 +8,10 @@ from threading import Thread
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 from telegram import Update
 from brain import ask_brain, get_family_knowledge
-from config import GROQ_API_KEY, TELEGRAM_TOKEN, FAMILY_IDS, FAMILY_GROUP_ID
+from config import GROQ_API_KEY, TELEGRAM_TOKEN, FAMILY_IDS, FAMILY_GROUP_ID, RENDER_EXTERNAL_URL
 from datetime import time
 import pytz # Recommended for handling your local timezone
+import httpx
 from tools.weather_tool import get_weather
 from tools.calendar_tool import check_birthdays
 
@@ -114,6 +115,18 @@ async def morning_briefing(context):
         parse_mode="Markdown"
     )
 
+async def keep_alive(context: ContextTypes.DEFAULT_TYPE):
+    """Ping the service to keep it alive on Render."""
+    if not RENDER_EXTERNAL_URL:
+        return
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(RENDER_EXTERNAL_URL)
+            print(f"📡 Keep-alive ping sent to {RENDER_EXTERNAL_URL}. Status: {response.status_code}")
+    except Exception as e:
+        print(f"❌ Keep-alive ping failed: {e}")
+
 async def handle_voice(update, context):
     """Transcribe voice memos sent to the bot."""
     if update.effective_user.id not in FAMILY_IDS:
@@ -181,6 +194,10 @@ if __name__ == '__main__':
         morning_briefing, 
         time=time(hour=5, minute=0, tzinfo=sa_tz)
     )
+
+    # Keep-alive ping every 10 minutes to prevent Render sleep
+    if RENDER_EXTERNAL_URL:
+        job_queue.run_repeating(keep_alive, interval=600, first=10)
 
 
     # Register handlers

@@ -44,6 +44,11 @@ async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Family Bot is online! Ask me anything about the house.")
 
+async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Utility to find the chat ID (useful for getting Group IDs)."""
+    chat_id = update.effective_chat.id
+    await update.message.reply_text(f"The ID for this chat is: `{chat_id}`", parse_mode="Markdown")
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id not in FAMILY_IDS:
         return
@@ -203,6 +208,7 @@ if __name__ == '__main__':
     # Register handlers
     bot_app.add_handler(CommandHandler("ping", ping))
     bot_app.add_handler(CommandHandler("start", start))
+    bot_app.add_handler(CommandHandler("get_id", get_id))
     bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     bot_app.add_handler(MessageHandler(filters.VOICE, handle_voice))
     bot_app.add_error_handler(error_handler)

@@ -4,7 +4,7 @@ import os
 INVENTORY_FILE = "inventory.json"
 
 def get_inventory():
-    """Reads the current food inventory from the JSON file."""
+    """Reads the current household inventory from the JSON file."""
     if not os.path.exists(INVENTORY_FILE):
         return "Inventory file not found."
     
@@ -16,10 +16,21 @@ def get_inventory():
             if not inventory:
                 return "The inventory is currently empty."
             
-            # Format as a readable string for the LLM
-            lines = ["Current Household Inventory:"]
+            # Group items by type
+            grouped = {}
             for item in inventory:
-                lines.append(f"- {item['item']}: {item['quantity']} (Stored in {item['storage']}, Last updated: {item['last_updated']})")
+                itype = item.get("type", "Other")
+                if itype not in grouped:
+                    grouped[itype] = []
+                grouped[itype].append(item)
+            
+            # Format as a readable string
+            lines = ["🏠 **Household Inventory**"]
+            for itype, items in grouped.items():
+                lines.append(f"\n🔹 **{itype}**")
+                for item in items:
+                    cat = item.get('category', 'General')
+                    lines.append(f"  - {item['item']} ({cat}): {item['quantity']} | Location: {item['storage']}")
             
             return "\n".join(lines)
     except Exception as e:

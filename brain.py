@@ -80,6 +80,9 @@ def ask_brain(user_query, chat_id="default", context_data=None):
     Family Knowledge:
     {knowledge}
     
+    Rules:
+    - Birthday dates from family members are formatted in DD/MM/YYYY.
+
     Instructions:
     - Respond in a warm, concise manner.
     - Use short paragraphs and bullet points for readability. Avoid long walls of text.

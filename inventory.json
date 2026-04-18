@@ -1,6 +1,7 @@
 {
   "inventory": [
     {
+      "type": "Consumables",
       "category": "Grains",
       "item": "Rice (Basmati)",
       "quantity": "2kg",
@@ -8,20 +9,7 @@
       "last_updated": "2026-04-11"
     },
     {
-      "category": "Grains",
-      "item": "Pasta (Spaghetti)",
-      "quantity": "3 packs",
-      "storage": "Pantry",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Grains",
-      "item": "Oats",
-      "quantity": "1kg",
-      "storage": "Pantry",
-      "last_updated": "2026-04-11"
-    },
-    {
+      "type": "Consumables",
       "category": "Proteins",
       "item": "Chicken Breast",
       "quantity": "1.5kg",
@@ -29,88 +17,36 @@
       "last_updated": "2026-04-11"
     },
     {
-      "category": "Proteins",
-      "item": "Ground Beef",
-      "quantity": "1kg",
-      "storage": "Freezer",
-      "last_updated": "2026-04-11"
+      "type": "Equipment",
+      "category": "Kitchen",
+      "item": "Air Fryer",
+      "quantity": "1 unit",
+      "storage": "Kitchen Counter",
+      "last_updated": "2026-04-14"
     },
     {
-      "category": "Proteins",
-      "item": "Eggs",
-      "quantity": "12 units",
-      "storage": "Fridge",
-      "last_updated": "2026-04-11"
+      "type": "Equipment",
+      "category": "Tools",
+      "item": "Power Drill",
+      "quantity": "1 unit",
+      "storage": "Garage",
+      "last_updated": "2026-04-14"
     },
     {
-      "category": "Proteins",
-      "item": "Tuna (Canned)",
-      "quantity": "4 cans",
-      "storage": "Pantry",
-      "last_updated": "2026-04-11"
+      "type": "Vehicles",
+      "category": "Personal",
+      "item": "Renault Kwid 1.0",
+      "quantity": "1 unit",
+      "storage": "Driveway",
+      "last_updated": "2026-04-14"
     },
     {
-      "category": "Produce",
-      "item": "Potatoes",
-      "quantity": "3kg",
-      "storage": "Counter",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Produce",
-      "item": "Onions",
-      "quantity": "1kg",
-      "storage": "Counter",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Produce",
-      "item": "Spinach",
-      "quantity": "2 bunches",
-      "storage": "Fridge",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Produce",
-      "item": "Apples",
-      "quantity": "6 units",
-      "storage": "Counter",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Dairy",
-      "item": "Milk (Full Cream)",
-      "quantity": "2L",
-      "storage": "Fridge",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Dairy",
-      "item": "Cheddar Cheese",
-      "quantity": "500g",
-      "storage": "Fridge",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Dairy",
-      "item": "Butter",
-      "quantity": "250g",
-      "storage": "Fridge",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Pantry",
-      "item": "Olive Oil",
-      "quantity": "1L",
-      "storage": "Pantry",
-      "last_updated": "2026-04-11"
-    },
-    {
-      "category": "Pantry",
-      "item": "Coffee",
-      "quantity": "500g",
-      "storage": "Pantry",
-      "last_updated": "2026-04-11"
+      "type": "Equipment",
+      "category": "Entertainment",
+      "item": "400kw Generator",
+      "quantity": "1 unit",
+      "storage": "Outside kitchen area",
+      "last_updated": "2026-04-14"
     }
   ]
 }

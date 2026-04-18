@@ -5,6 +5,7 @@ from datetime import datetime
 from config import GROQ_API_KEY, KNOWLEDGE_FILE
 from tools.weather_tool import get_weather
 from tools.inventory_tool import get_inventory
+from tools.calendar_tool import check_birthdays, get_birthday_info
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -62,6 +63,31 @@ tools = [
                 "properties": {}
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "check_birthdays",
+            "description": "Check for any birthdays occurring today or in the next 30 days.",
+            "parameters": {
+                "type": "object",
+                "properties": {}
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_birthday_info",
+            "description": "Get the specific birthday date for a family member.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "The name of the family member"}
+                },
+                "required": ["name"]
+            }
+        }
     }
 ]
 
@@ -82,6 +108,8 @@ def ask_brain(user_query, chat_id="default", context_data=None):
     
     Rules:
     - Birthday dates from family members are formatted in DD/MM/YYYY.
+    - When discussing dates, always use a natural format (e.g., "12th of January" or "July 29th") rather than numeric formats like "12-01-2000".
+    - When asked about a birthday, use the 'get_birthday_info' tool to get the formatted natural date.
 
     Instructions:
     - Respond in a warm, concise manner.
@@ -149,6 +177,15 @@ def ask_brain(user_query, chat_id="default", context_data=None):
                 
                 elif function_name == "get_inventory":
                     function_response = get_inventory()
+                
+                elif function_name == "check_birthdays":
+                    function_response = check_birthdays(knowledge)
+                
+                elif function_name == "get_birthday_info":
+                    function_response = get_birthday_info(
+                        name=function_args.get("name"),
+                        knowledge_text=knowledge
+                    )
                 
                 messages.append({
                     "tool_call_id": tool_call.id,

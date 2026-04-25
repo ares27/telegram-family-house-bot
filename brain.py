@@ -127,19 +127,33 @@ def ask_brain(user_query, chat_id="default", context_data=None):
     # Build message list
     messages = [{"role": "system", "content": system_prompt}]
     
-    # Add history
-    messages.extend(chat_histories[chat_id][-10:])
+    # Add history (reduced to 5 to avoid TPM limits)
+    messages.extend(chat_histories[chat_id][-5:])
     
     # Add current user message
     messages.append({"role": "user", "content": user_query})
 
     try:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=messages,
-            tools=tools,
-            tool_choice="auto"
-        )
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=messages,
+                tools=tools,
+                tool_choice="auto"
+            )
+        except Exception as e:
+            # If we hit a rate limit (TPM), try one more time without history
+            if "rate_limit_exceeded" in str(e) or "413" in str(e):
+                print("DEBUG: Rate limit hit, retrying without history...")
+                messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_query}]
+                response = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=messages,
+                    tools=tools,
+                    tool_choice="auto"
+                )
+            else:
+                raise e
         
         response_message = response.choices[0].message
         tool_calls = response_message.tool_calls
